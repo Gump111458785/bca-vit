@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_lora_dtd",
+    "top1_acc": 76.19,
+    "top5_acc": 93.36,
+    "macro_f1": 75.95,
+    "ece": 7.87,
+    "total_samples": 600
+}

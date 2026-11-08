@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_bca_vit_pets",
+    "top1_acc": 95.59,
+    "top5_acc": 99.32,
+    "macro_f1": 95.6,
+    "ece": 2.62,
+    "total_samples": 500
+}

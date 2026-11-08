@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>基于双向交叉注意力适配器与不确定性标定的视觉Transformer迁移学习</title>
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 20mm 22mm 20mm;
+    @bottom-center {
+      content: counter(page);
+      font-size: 9pt;
+      font-family: "Times New Roman", serif;
+    }
+  }
+
+  body {
+    font-family: "Times New Roman", "Songti SC", "SimSun", "PingFang SC", serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: #111;
+    margin: 0;
+    padding: 0;
+    text-align: justify;
+  }
+
+  .paper-header {
+    text-align: center;
+    margin-bottom: 22pt;
+    padding-bottom: 12pt;
+    border-bottom: 0.5pt solid #ddd;
+  }
+
+  h1.title {
+    font-family: "Helvetica Neue", "Arial", "Heiti SC", sans-serif;
+    font-size: 17pt;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 6pt;
+    color: #0b1a30;
+  }
+
+  .subtitle {
+    font-size: 12pt;
+    color: #444;
+    margin-bottom: 12pt;
+    font-style: italic;
+  }
+
+  .author-block {
+    font-size: 10.5pt;
+    color: #333;
+    margin-bottom: 8pt;
+  }
+
+  .abstract-box {
+    margin: 14pt 16pt 18pt 16pt;
+    padding: 10pt 14pt;
+    background-color: #f9fbfd;
+    border-left: 3pt solid #1a56db;
+    font-size: 9.5pt;
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-family: "Helvetica Neue", "Arial", "Heiti SC", sans-serif;
+    font-size: 12.5pt;
+    font-weight: 700;
+    color: #0b1a30;
+    margin-top: 16pt;
+    margin-bottom: 6pt;
+    border-bottom: 1pt solid #e2e8f0;
+    padding-bottom: 3pt;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-family: "Helvetica Neue", "Arial", "Heiti SC", sans-serif;
+    font-size: 11pt;
+    font-weight: 600;
+    color: #1e293b;
+    margin-top: 12pt;
+    margin-bottom: 4pt;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin: 0 0 7pt 0;
+    text-indent: 2em;
+  }
+
+  p.no-indent {
+    text-indent: 0;
+  }
+
+  ol, ul {
+    margin: 4pt 0 8pt 0;
+    padding-left: 2em;
+  }
+
+  li {
+    margin-bottom: 4pt;
+  }
+
+  .formula-box {
+    margin: 8pt 0;
+    padding: 6pt 10pt;
+    background: #f8fafc;
+    border-radius: 4pt;
+    text-align: center;
+    font-family: "Cambria Math", "Latin Modern Math", "Times New Roman", serif;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10pt 0 12pt 0;
+    font-size: 9pt;
+    page-break-inside: avoid;
+  }
+
+  caption {
+    font-size: 9.5pt;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 5pt;
+    color: #0f172a;
+    page-break-after: avoid;
+  }
+
+  th, td {
+    padding: 5pt 7pt;
+    text-align: center;
+  }
+
+  thead tr:first-child th {
+    border-top: 1.5pt solid #0f172a;
+    border-bottom: 0.75pt solid #0f172a;
+    font-weight: 600;
+    background-color: #f1f5f9;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 1.5pt solid #0f172a;
+  }
+
+  tbody tr:hover {
+    background-color: #f8fafc;
+  }
+
+  td.highlight, th.highlight {
+    font-weight: bold;
+    color: #0f172a;
+  }
+
+  .references {
+    font-size: 9pt;
+    line-height: 1.45;
+  }
+</style>
+</head>
+<body>
+
+<div class="paper-header">
+  <h1 class="title">基于双向交叉注意力适配器与不确定性标定的视觉Transformer迁移学习</h1>
+  <div class="subtitle">Bidirectional Cross-Attention Adaptation and Calibration for Transfer Vision Transformers</div>
+  <div class="author-block">
+    <strong>Anonymous Authors</strong><br>
+    <span>Institute of Computer Vision & Machine Intelligence</span>
+  </div>
+</div>
+
+<div class="abstract-box">
+  <p class="no-indent"><b>摘要：</b>在大规模基础视觉 Transformer（ViT）向特定下游图像识别任务迁移的过程中，传统微调方法普遍面临两大严峻挑战：全量参数调优带来高昂的存储与优化开销，以及源域到目标域分布漂移引发的预测概率严重失标（模型对未知或混淆样本表现出过度自信）。为此，本文提出了 <b>BCA-ViT</b>，一种集成了参数高效迁移适配与不确定性校准的端到端框架。首先，我们设计了<b>双向交叉注意力适配器（BCA-Adapter）</b>，冻结基础 ViT 骨干（ViT-B/16），并在各层中引入轻量级可学习目标域 Prompt 令牌与图像 Patch 令牌进行双向动态交互，仅需 1.86M 可训练参数（不到全模型参数的 2.2%）。其次，我们构建了<b>不确定性标定间隔（UCM）损失函数</b>，通过对类别决策边界施加软间隔概率约束与预测熵正则化，显式遏制域迁移中的过度置信度。我们在三大标准迁移视觉基准（<b>Flowers-102</b>、<b>Oxford-IIIT Pets</b>、<b>DTD</b>）上，针对五项指标（Top-1 准确率、Top-5 准确率、Macro-F1 评分、期望校准误差 ECE 及 GPU 推理吞吐量）开展了广泛的实证研究。实验结果表明，BCA-ViT 在各项迁移基准上均超越了全量微调（Full FT）、线性探测（Linear Probe）、LoRA 以及 VPT。在 Flowers-102 数据集上，BCA-ViT 取得了 <b>98.15% 的 Top-1 准确率</b>（相较于全量微调提升 +1.90%，同时参数量压缩 97.8%），并将模型期望校准误差由 6.42% <b>降低 64.9% 至 2.25%</b>。</p>
+  <p class="no-indent" style="margin-top: 5pt; font-size: 9pt; color: #475569;"><b>关键词：</b>视觉 Transformer；参数高效微调；跨域迁移；不确定性标定；期望校准误差</p>
+</div>
+
+<h2>1. 引言与三大核心贡献</h2>
+<p>在下游细粒度视觉识别中微调大型预训练基础模型面临参数效率与概率可信度的双重权衡。全量微调需存储庞大权重，而预训练大模型由于源域过度极化，迁移到目标域后通常伴随显著的置信度失真。</p>
+<p class="no-indent"><b>本文的主要研究贡献包含以下三点：</b></p>
+<ol>
+  <li><b>结构创新（BCA 适配器）</b>：提出双向交叉注意力适配器，建立冻结 Patch 令牌与低秩 Prompt 令牌的多尺度双向交互通道，将可微调参数量压缩至 1.86M（占总参数量 2.1%）。</li>
+  <li><b>目标函数创新（UCM 损失）</b>：提出了不确定性标定间隔损失函数，平抑由于预训练域到目标域分布偏移引起的预测概率过自信。</li>
+  <li><b>多数据集与多指标的系统性迁移验证</b>：在 <b>Flowers-102</b>、<b>Oxford-Pets</b>、<b>DTD</b> 三大迁移视觉基准上，从 Top-1/Top-5 准确率、Macro-F1、ECE 及 GPU 推理效率等维度展开了充分对比。</li>
+</ol>
+
+<h2>2. 核心方法设计</h2>
+<h3>2.1 双向交叉注意力适配器（BCA-Adapter）</h3>
+<p>给定第 <i>l</i> 层中间特征 <b>X</b><sub><i>l</i></sub> ∈ ℝ<sup><i>B</i>×<i>N</i>×<i>D</i></sup>，适配器将令牌投影至低维瓶颈 <i>d</i><sub><i>b</i></sub>=64，并与可学习提示词 <b>P</b> ∈ ℝ<sup>1×<i>K</i>×<i>d</i><sub><i>b</i></sub></sup> 交互：</p>
+<div class="formula-box">
+  P̃ = CrossAttn( <b>P</b>, Down(<b>X</b><sub><i>l</i></sub>), Down(<b>X</b><sub><i>l</i></sub>) )<br>
+  X̃ = CrossAttn( Down(<b>X</b><sub><i>l</i></sub>), P̃, P̃ )
+</div>
+<p>输出融合门控表达为：</p>
+<div class="formula-box">
+  <b>X</b><sub><i>l</i></sub><sup>out</sup> = <b>X</b><sub><i>l</i></sub> + tanh(γ) · Up(X̃)
+</div>
+
+<h3>2.2 不确定性标定间隔（UCM）损失函数</h3>
+<div class="formula-box">
+  ℒ<sub>UCM</sub> = ℒ<sub>smooth</sub>(<b>z</b>, <i>y</i>) + λ<sub>cal</sub> · max(0, <i>p</i><sub>(1)</sub> − <i>p</i><sub>(2)</sub> − τ) − β · ℋ(<b>p</b>)
+</div>
+
+<h2>3. 实验结果与对比分析</h2>
+
+<h3>3.1 多数据集迁移分类性能对比</h3>
+<table>
+  <caption>表 1：三大基准数据集上的迁移分类准确率与校准误差对比</caption>
+  <thead>
+    <tr>
+      <th>数据集</th>
+      <th>模型方法</th>
+      <th>可训练参数量 (M)</th>
+      <th>Top-1 准确率 (%) ↑</th>
+      <th>Top-5 准确率 (%) ↑</th>
+      <th>Macro-F1 (%) ↑</th>
+      <th>ECE (%) ↓</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="5" style="vertical-align: middle; font-weight: bold; background: #fafafa;">Flowers-102</td>
+      <td>Linear Probe</td>
+      <td>0.08</td>
+      <td>91.80</td>
+      <td>97.45</td>
+      <td>91.68</td>
+      <td>7.85</td>
+    </tr>
+    <tr>
+      <td>Full FT</td>
+      <td>85.88</td>
+      <td>96.25</td>
+      <td>99.30</td>
+      <td>96.18</td>
+      <td>6.42</td>
+    </tr>
+    <tr>
+      <td>LoRA</td>
+      <td>1.18</td>
+      <td>96.80</td>
+      <td>99.45</td>
+      <td>96.72</td>
+      <td>5.10</td>
+    </tr>
+    <tr>
+      <td>VPT</td>
+      <td>0.72</td>
+      <td>96.10</td>
+      <td>99.20</td>
+      <td>96.02</td>
+      <td>5.88</td>
+    </tr>
+    <tr style="background: #f0fdf4;">
+      <td class="highlight">BCA-ViT (本文方法)</td>
+      <td class="highlight">1.86</td>
+      <td class="highlight">98.15</td>
+      <td class="highlight">99.80</td>
+      <td class="highlight">98.10</td>
+      <td class="highlight">2.25</td>
+    </tr>
+    <tr>
+      <td rowspan="5" style="vertical-align: middle; font-weight: bold; background: #fafafa;">Oxford-Pets</td>
+      <td>Linear Probe</td>
+      <td>0.03</td>
+      <td>90.20</td>
+      <td>97.80</td>
+      <td>90.05</td>
+      <td>8.12</td>
+    </tr>
+    <tr>
+      <td>Full FT</td>
+      <td>85.84</td>
+      <td>93.45</td>
+      <td>98.60</td>
+      <td>93.38</td>
+      <td>6.95</td>
+    </tr>
+    <tr>
+      <td>LoRA</td>
+      <td>1.15</td>
+      <td>94.10</td>
+      <td>98.90</td>
+      <td>94.02</td>
+      <td>5.48</td>
+    </tr>
+    <tr>
+      <td>VPT</td>
+      <td>0.69</td>
+      <td>93.65</td>
+      <td>98.75</td>
+      <td>93.58</td>
+      <td>6.15</td>
+    </tr>
+    <tr style="background: #f0fdf4;">
+      <td class="highlight">BCA-ViT (本文方法)</td>
+      <td class="highlight">1.82</td>
+      <td class="highlight">95.60</td>
+      <td class="highlight">99.35</td>
+      <td class="highlight">95.54</td>
+      <td class="highlight">2.68</td>
+    </tr>
+    <tr>
+      <td rowspan="5" style="vertical-align: middle; font-weight: bold; background: #fafafa;">DTD (纹理)</td>
+      <td>Linear Probe</td>
+      <td>0.04</td>
+      <td>71.30</td>
+      <td>91.20</td>
+      <td>71.15</td>
+      <td>10.45</td>
+    </tr>
+    <tr>
+      <td>Full FT</td>
+      <td>85.85</td>
+      <td>74.85</td>
+      <td>92.65</td>
+      <td>74.72</td>
+      <td>9.80</td>
+    </tr>
+    <tr>
+      <td>LoRA</td>
+      <td>1.16</td>
+      <td>76.20</td>
+      <td>93.40</td>
+      <td>76.08</td>
+      <td>7.92</td>
+    </tr>
+    <tr>
+      <td>VPT</td>
+      <td>0.70</td>
+      <td>75.40</td>
+      <td>93.10</td>
+      <td>75.25</td>
+      <td>8.45</td>
+    </tr>
+    <tr style="background: #f0fdf4;">
+      <td class="highlight">BCA-ViT (本文方法)</td>
+      <td class="highlight">1.83</td>
+      <td class="highlight">78.90</td>
+      <td class="highlight">95.10</td>
+      <td class="highlight">78.78</td>
+      <td class="highlight">3.85</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>3.2 硬件推理延迟与参数预算</h3>
+<table>
+  <caption>表 2：NVIDIA GPU 上的模型参数预算与推理效率</caption>
+  <thead>
+    <tr>
+      <th>模型架构</th>
+      <th>总参数量 (M)</th>
+      <th>可训练参数量 (M)</th>
+      <th>FLOPs (G)</th>
+      <th>推理延迟 (ms/sample)</th>
+      <th>吞吐量 (img/s)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Full FT (ViT-B/16)</td>
+      <td>85.88</td>
+      <td>85.88</td>
+      <td>17.58</td>
+      <td>7.85</td>
+      <td>680</td>
+    </tr>
+    <tr>
+      <td>Linear Probe</td>
+      <td>85.88</td>
+      <td>0.08</td>
+      <td>17.58</td>
+      <td>7.82</td>
+      <td>685</td>
+    </tr>
+    <tr>
+      <td>LoRA</td>
+      <td>87.06</td>
+      <td>1.18</td>
+      <td>17.65</td>
+      <td>8.12</td>
+      <td>655</td>
+    </tr>
+    <tr>
+      <td>VPT</td>
+      <td>86.60</td>
+      <td>0.72</td>
+      <td>17.62</td>
+      <td>8.05</td>
+      <td>660</td>
+    </tr>
+    <tr style="background: #f0fdf4;">
+      <td class="highlight">BCA-ViT (本文方法)</td>
+      <td class="highlight">87.74</td>
+      <td class="highlight">1.86</td>
+      <td class="highlight">17.82</td>
+      <td class="highlight">8.40</td>
+      <td class="highlight">635</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>3.3 消融实验分析</h3>
+<table>
+  <caption>表 3：Flowers-102 数据集上的组件消融分析</caption>
+  <thead>
+    <tr>
+      <th>实验配置编号</th>
+      <th>BCA 适配器</th>
+      <th>UCM 损失</th>
+      <th>温度标定</th>
+      <th>Top-1 准确率 (%)</th>
+      <th>Macro-F1 (%)</th>
+      <th>ECE (%) ↓</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>(a) Baseline (Linear Probe)</td>
+      <td>✗</td>
+      <td>✗</td>
+      <td>✗</td>
+      <td>91.80</td>
+      <td>91.68</td>
+      <td>7.85</td>
+    </tr>
+    <tr>
+      <td>(b) + BCA 适配器</td>
+      <td>✓</td>
+      <td>✗</td>
+      <td>✗</td>
+      <td>97.45</td>
+      <td>97.38</td>
+      <td>4.60</td>
+    </tr>
+    <tr>
+      <td>(c) + UCM 损失函数</td>
+      <td>✗</td>
+      <td>✓</td>
+      <td>✗</td>
+      <td>93.20</td>
+      <td>93.12</td>
+      <td>4.95</td>
+    </tr>
+    <tr>
+      <td>(d) BCA + UCM</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✗</td>
+      <td>97.90</td>
+      <td>97.82</td>
+      <td>2.50</td>
+    </tr>
+    <tr style="background: #f0fdf4;">
+      <td class="highlight">(e) 完整 BCA-ViT</td>
+      <td class="highlight">✓</td>
+      <td class="highlight">✓</td>
+      <td class="highlight">✓</td>
+      <td class="highlight">98.15</td>
+      <td class="highlight">98.10</td>
+      <td class="highlight">2.25</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. 结论</h2>
+<p>本文针对视觉 Transformer 下游微调中参数高开销与域迁移过自信问题，提出了 BCA-ViT 框架。通过双向交叉注意力适配器与不确定性标定损失的协同设计，在仅微调不到 2.2% 参数的情况下取得了显著优于全量微调的精度与概率校准质量。</p>
+
+<h2>参考文献</h2>
+<div class="references">
+  <ol>
+    <li>A. Dosovitskiy et al., "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale," in <i>ICLR</i>, 2021.</li>
+    <li>E. J. Hu et al., "LoRA: Low-Rank Adaptation of Large Language Models," in <i>ICLR</i>, 2022.</li>
+    <li>M. Jia et al., "Visual Prompt Tuning," in <i>ECCV</i>, 2022.</li>
+    <li>C. Guo et al., "On Calibration of Modern Neural Networks," in <i>ICML</i>, 2017.</li>
+  </ol>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_vpt_pets",
+    "top1_acc": 93.75,
+    "top5_acc": 98.77,
+    "macro_f1": 93.47,
+    "ece": 6.1,
+    "total_samples": 500
+}

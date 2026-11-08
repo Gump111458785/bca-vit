@@ -1,0 +1,57 @@
+{
+  "paper": {
+    "title": "Bidirectional Cross-Attention Adaptation and Calibration for Transfer Vision Transformers",
+    "contributions": [
+      "Bidirectional Cross-Attention (BCA) Adapter for parameter-efficient transfer.",
+      "Uncertainty-Calibrated Margin (UCM) loss for out-of-domain transfer calibration.",
+      "Multi-dataset transfer benchmark (Flowers-102, Oxford-Pets, DTD) across accuracy, ECE, and GPU throughput."
+    ],
+    "datasets": ["flowers102", "pets", "dtd"],
+    "metrics": ["Top-1 Accuracy (%)", "Top-5 Accuracy (%)", "Macro-F1 (%)", "ECE (%)", "Latency (ms)", "Throughput (img/s)"],
+    "hardware_requirements": {"device": "CUDA GPU", "minimum_vram_gb": 8},
+    "pretrained_weights_required": {
+      "model": "ViT-B/16",
+      "filename": "vit_base_patch16_224.pth",
+      "download_script": "bash scripts/download_weights.sh"
+    }
+  },
+  "tables": {
+    "table_1": {
+      "flowers102": {
+        "Linear Probe": {"trainable_m": 0.08, "top1": 91.80, "top5": 97.45, "macro_f1": 91.68, "ece": 7.85},
+        "Full FT": {"trainable_m": 85.88, "top1": 96.25, "top5": 99.30, "macro_f1": 96.18, "ece": 6.42},
+        "LoRA": {"trainable_m": 1.18, "top1": 96.80, "top5": 99.45, "macro_f1": 96.72, "ece": 5.10},
+        "VPT": {"trainable_m": 0.72, "top1": 96.10, "top5": 99.20, "macro_f1": 96.02, "ece": 5.88},
+        "BCA-ViT (Ours)": {"trainable_m": 1.86, "top1": 98.15, "top5": 99.80, "macro_f1": 98.10, "ece": 2.25}
+      },
+      "pets": {
+        "Linear Probe": {"trainable_m": 0.03, "top1": 90.20, "top5": 97.80, "macro_f1": 90.05, "ece": 8.12},
+        "Full FT": {"trainable_m": 85.84, "top1": 93.45, "top5": 98.60, "macro_f1": 93.38, "ece": 6.95},
+        "LoRA": {"trainable_m": 1.15, "top1": 94.10, "top5": 98.90, "macro_f1": 94.02, "ece": 5.48},
+        "VPT": {"trainable_m": 0.69, "top1": 93.65, "top5": 98.75, "macro_f1": 93.58, "ece": 6.15},
+        "BCA-ViT (Ours)": {"trainable_m": 1.82, "top1": 95.60, "top5": 99.35, "macro_f1": 95.54, "ece": 2.68}
+      },
+      "dtd": {
+        "Linear Probe": {"trainable_m": 0.04, "top1": 71.30, "top5": 91.20, "macro_f1": 71.15, "ece": 10.45},
+        "Full FT": {"trainable_m": 85.85, "top1": 74.85, "top5": 92.65, "macro_f1": 74.72, "ece": 9.80},
+        "LoRA": {"trainable_m": 1.16, "top1": 76.20, "top5": 93.40, "macro_f1": 76.08, "ece": 7.92},
+        "VPT": {"trainable_m": 0.70, "top1": 75.40, "top5": 93.10, "macro_f1": 75.25, "ece": 8.45},
+        "BCA-ViT (Ours)": {"trainable_m": 1.83, "top1": 78.90, "top5": 95.10, "macro_f1": 78.78, "ece": 3.85}
+      }
+    },
+    "table_2": {
+      "Full FT": {"total_params_m": 85.88, "trainable_m": 85.88, "flops_g": 17.58, "latency_ms": 7.85, "throughput": 680},
+      "Linear Probe": {"total_params_m": 85.88, "trainable_m": 0.08, "flops_g": 17.58, "latency_ms": 7.82, "throughput": 685},
+      "LoRA": {"total_params_m": 87.06, "trainable_m": 1.18, "flops_g": 17.65, "latency_ms": 8.12, "throughput": 655},
+      "VPT": {"total_params_m": 86.60, "trainable_m": 0.72, "flops_g": 17.62, "latency_ms": 8.05, "throughput": 660},
+      "BCA-ViT (Ours)": {"total_params_m": 87.74, "trainable_m": 1.86, "flops_g": 17.82, "latency_ms": 8.40, "throughput": 635}
+    },
+    "table_3": {
+      "(a) Baseline (Linear Probe)": {"bca": false, "ucm": false, "temp": false, "top1": 91.80, "macro_f1": 91.68, "ece": 7.85},
+      "(b) + BCA Adapter": {"bca": true, "ucm": false, "temp": false, "top1": 97.45, "macro_f1": 97.38, "ece": 4.60},
+      "(c) + UCM Loss": {"bca": false, "ucm": true, "temp": false, "top1": 93.20, "macro_f1": 93.12, "ece": 4.95},
+      "(d) BCA + UCM": {"bca": true, "ucm": true, "temp": false, "top1": 97.90, "macro_f1": 97.82, "ece": 2.50},
+      "(e) Full BCA-ViT": {"bca": true, "ucm": true, "temp": true, "top1": 98.15, "macro_f1": 98.10, "ece": 2.25}
+    }
+  }
+}

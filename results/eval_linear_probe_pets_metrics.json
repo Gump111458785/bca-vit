@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_linear_probe_pets",
+    "top1_acc": 90.24,
+    "top5_acc": 97.87,
+    "macro_f1": 89.92,
+    "ece": 8.12,
+    "total_samples": 500
+}

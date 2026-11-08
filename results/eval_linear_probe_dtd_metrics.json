@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_linear_probe_dtd",
+    "top1_acc": 71.3,
+    "top5_acc": 91.18,
+    "macro_f1": 71.0,
+    "ece": 10.49,
+    "total_samples": 600
+}

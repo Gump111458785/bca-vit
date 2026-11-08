@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_vpt_dtd",
+    "top1_acc": 75.33,
+    "top5_acc": 93.12,
+    "macro_f1": 75.26,
+    "ece": 8.45,
+    "total_samples": 600
+}

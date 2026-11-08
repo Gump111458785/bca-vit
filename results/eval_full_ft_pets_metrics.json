@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_full_ft_pets",
+    "top1_acc": 93.45,
+    "top5_acc": 98.56,
+    "macro_f1": 93.38,
+    "ece": 6.89,
+    "total_samples": 500
+}

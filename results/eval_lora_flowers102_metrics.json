@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_lora_flowers102",
+    "top1_acc": 96.87,
+    "top5_acc": 99.39,
+    "macro_f1": 96.83,
+    "ece": 5.15,
+    "total_samples": 1000
+}

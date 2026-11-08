@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_full_ft_dtd",
+    "top1_acc": 74.76,
+    "top5_acc": 92.64,
+    "macro_f1": 74.66,
+    "ece": 9.79,
+    "total_samples": 600
+}

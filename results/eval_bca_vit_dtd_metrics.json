@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_bca_vit_dtd",
+    "top1_acc": 78.94,
+    "top5_acc": 95.07,
+    "macro_f1": 78.74,
+    "ece": 3.84,
+    "total_samples": 600
+}

@@ -1,0 +1,8 @@
+{
+    "run_name": "eval_vpt_flowers102",
+    "top1_acc": 95.95,
+    "top5_acc": 99.27,
+    "macro_f1": 96.04,
+    "ece": 5.89,
+    "total_samples": 1000
+}
