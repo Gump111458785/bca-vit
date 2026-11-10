@@ -1,8 +1,0 @@
-{
-    "run_name": "eval_full_ft_flowers102",
-    "top1_acc": 96.3,
-    "top5_acc": 99.32,
-    "macro_f1": 96.06,
-    "ece": 6.4,
-    "total_samples": 1000
-}

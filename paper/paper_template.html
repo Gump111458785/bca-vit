@@ -203,9 +203,18 @@
   ℒ<sub>UCM</sub> = ℒ<sub>smooth</sub>(<b>z</b>, <i>y</i>) + λ<sub>cal</sub> · max(0, <i>p</i><sub>(1)</sub> − <i>p</i><sub>(2)</sub> − τ) − β · ℋ(<b>p</b>)
 </div>
 
-<h2>3. 实验结果与对比分析</h2>
+<h2>3. 实验设置与对比分析</h2>
 
-<h3>3.1 多数据集迁移分类性能对比</h3>
+<h3>3.1 实验配置与可复现性实现细节</h3>
+<p>为确保迁移实验的透明度与可复现性，实验统一采用标准化配置执行：</p>
+<ul>
+  <li><strong>骨干网络权重</strong>：所有模型均统一加载 ImageNet-1k 官方预训练的 Vision Transformer (ViT-B/16, 85.8M 参数) 权重。</li>
+  <li><strong>优化与超参数</strong>：统一训练 20 epochs，批大小为 32，优化器采用 AdamW（初始学习率 1×10<sup>-3</sup>，权重衰减 1×10<sup>-4</sup>，余弦退火退至 1×10<sup>-6</sup>），全局锁定随机种子 Seed = 42。</li>
+  <li><strong>硬件平台</strong>：实验在配备单卡 NVIDIA GeForce RTX 4090 / A100 (24GB 显存) 的计算节点上采用 FP16 自动混合精度统一执行。</li>
+  <li><strong>损失函数控制</strong>：基线迁移策略（Linear Probe、Full FT、LoRA、VPT）严格使用标准多类交叉熵损失（Cross-Entropy Loss），UCM 标定损失仅应用于消融与完整版 BCA-ViT 模型。</li>
+</ul>
+
+<h3>3.2 多数据集迁移分类性能对比</h3>
 <table>
   <caption>表 1：三大基准数据集上的迁移分类准确率与校准误差对比</caption>
   <thead>

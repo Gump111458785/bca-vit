@@ -48,6 +48,8 @@ echo ""
 echo "=========================================================="
 echo " 6. Running Ablation Study on Flowers-102 (Table 3)"
 echo "=========================================================="
+# (a) Full Fine-Tuning Baseline
+python3 scripts/train.py --model full_ft --dataset flowers102 --no_bca --no_ucm --no_temp_scale --output_dir "./checkpoints/ablation_a"
 python3 scripts/train.py --model bca_vit --dataset flowers102 --use_bca --no_ucm --no_temp_scale --output_dir "./checkpoints/ablation_b"
 python3 scripts/train.py --model bca_vit --dataset flowers102 --no_bca --use_ucm --no_temp_scale --output_dir "./checkpoints/ablation_c"
 python3 scripts/train.py --model bca_vit --dataset flowers102 --use_bca --use_ucm --no_temp_scale --output_dir "./checkpoints/ablation_d"

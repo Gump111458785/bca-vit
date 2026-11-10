@@ -42,8 +42,8 @@ def main():
     parser.add_argument("--weight_decay", type=float, default=1e-4)
     parser.add_argument("--use_bca", action="store_true", default=True)
     parser.add_argument("--no_bca", dest="use_bca", action="store_false")
-    parser.add_argument("--use_ucm", action="store_true", default=True)
-    parser.add_argument("--no_ucm", dest="use_ucm", action="store_false")
+    parser.add_argument("--use_ucm", dest="use_ucm", action="store_true", default=None, help="Explicitly enable UCM loss")
+    parser.add_argument("--no_ucm", dest="use_ucm", action="store_false", help="Explicitly disable UCM loss")
     parser.add_argument("--use_temp_scale", action="store_true", default=True)
     parser.add_argument("--no_temp_scale", dest="use_temp_scale", action="store_false")
     parser.add_argument("--seed", type=int, default=42)
@@ -95,7 +95,20 @@ def main():
     trainable_count = sum(p.numel() for p in trainable_params) / 1e6
     print(f"[Model Parameter Budget] Trainable Parameters: {trainable_count:.2f} M")
 
-    criterion = UncertaintyCalibratedMarginLoss(smoothing=0.05, cal_weight=0.20, use_ucm=args.use_ucm).to(device)
+    # Loss Function Assignment
+    # Baselines (linear_probe, full_ft, lora, vpt) and non-UCM ablation variants
+    # strictly use standard nn.CrossEntropyLoss unless explicitly overridden.
+    if args.use_ucm is None:
+        use_ucm = (args.model == "bca_vit")
+    else:
+        use_ucm = args.use_ucm
+
+    if use_ucm:
+        print("[Loss Objective] Employing Uncertainty-Calibrated Margin (UCM) Loss.")
+        criterion = UncertaintyCalibratedMarginLoss(smoothing=0.05, cal_weight=0.20, use_ucm=True).to(device)
+    else:
+        print("[Loss Objective] Employing Standard Cross-Entropy Loss (nn.CrossEntropyLoss) for baseline / ablation.")
+        criterion = nn.CrossEntropyLoss().to(device)
     optimizer = optim.AdamW(trainable_params, lr=args.lr, weight_decay=args.weight_decay)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-6)
     scaler = GradScaler(enabled=(device.type == "cuda"))

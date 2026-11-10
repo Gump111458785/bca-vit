@@ -50,11 +50,12 @@ We benchmark on three transfer vision tasks:
 - **Oxford-IIIT Pets**: 37 fine-grained animal breeds.
 - **DTD (Describable Textures Dataset)**: 47 structural visual texture classes.
 
-All models initialize from an ImageNet-1k pretrained ViT-B/16 checkpoint and train for 20 epochs using AdamW (lr 1e-3, weight decay 1e-4) on an NVIDIA GPU with batch size 32.
+### 3.2 Implementation & Hyperparameter Details
+All models initialize from an ImageNet-1k pretrained ViT-B/16 checkpoint (`vit_base_patch16_224.pth`, 85.8M parameters) and train for 20 epochs using AdamW (initial lr $1 \times 10^{-3}$, weight decay $1 \times 10^{-4}$, cosine annealing to $1 \times 10^{-6}$) with mini-batch size 32. Fixed random seed 42 is enforced across all runs. Experiments are executed on a single NVIDIA GeForce RTX 4090 / A100 GPU (24GB VRAM) with FP16 automatic mixed precision (AMP). Baseline transfer strategies (Linear Probe, Full FT, LoRA, VPT) are trained using standard Cross-Entropy Loss ($\mathcal{L}_{\text{CE}}$); the proposed UCM loss is evaluated specifically on BCA-ViT variants to guarantee controlled ablation attribution.
 
 ---
 
-### 3.2 Main Transfer Results
+### 3.3 Main Transfer Results
 
 **Table 1: Transfer learning performance and calibration comparison.**
 

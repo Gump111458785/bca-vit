@@ -1,8 +1,0 @@
-{
-    "run_name": "eval_bca_vit_flowers102",
-    "top1_acc": 98.22,
-    "top5_acc": 99.75,
-    "macro_f1": 97.98,
-    "ece": 2.26,
-    "total_samples": 1000
-}

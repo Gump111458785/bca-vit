@@ -1,8 +1,0 @@
-{
-    "run_name": "eval_linear_probe_flowers102",
-    "top1_acc": 91.66,
-    "top5_acc": 97.51,
-    "macro_f1": 91.63,
-    "ece": 7.9,
-    "total_samples": 1000
-}

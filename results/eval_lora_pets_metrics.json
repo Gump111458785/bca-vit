@@ -1,8 +1,0 @@
-{
-    "run_name": "eval_lora_pets",
-    "top1_acc": 94.08,
-    "top5_acc": 98.85,
-    "macro_f1": 94.15,
-    "ece": 5.44,
-    "total_samples": 500
-}
