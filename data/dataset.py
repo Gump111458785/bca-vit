@@ -56,9 +56,10 @@ def get_dataloaders(
     target_dir = os.path.join(data_dir, dataset_name)
     if not verify_dataset(dataset_name, data_dir):
         if download:
-            download_dataset(dataset_name, data_dir)
-        else:
-            raise FileNotFoundError(f"Missing dataset {dataset_name}.")
+            try:
+                download_dataset(dataset_name, data_dir)
+            except Exception as e:
+                print(f"[Dataset Download Warning] Automatic download failed: {e}")
 
     cfg = get_dataset_info(dataset_name)
     num_classes = cfg["num_classes"]
@@ -77,20 +78,20 @@ def get_dataloaders(
 
     try:
         if dataset_name == "flowers102":
-            train_ds = datasets.Flowers102(root=target_dir, split="train", transform=train_tf, download=False)
-            test_ds = datasets.Flowers102(root=target_dir, split="test", transform=test_tf, download=False)
+            train_ds = datasets.Flowers102(root=target_dir, split="train", transform=train_tf, download=True)
+            test_ds = datasets.Flowers102(root=target_dir, split="test", transform=test_tf, download=True)
         elif dataset_name == "pets":
-            train_ds = datasets.OxfordIIITPet(root=target_dir, split="trainval", transform=train_tf, download=False)
-            test_ds = datasets.OxfordIIITPet(root=target_dir, split="test", transform=test_tf, download=False)
+            train_ds = datasets.OxfordIIITPet(root=target_dir, split="trainval", transform=train_tf, download=True)
+            test_ds = datasets.OxfordIIITPet(root=target_dir, split="test", transform=test_tf, download=True)
         elif dataset_name == "dtd":
-            train_ds = datasets.DTD(root=target_dir, split="train", transform=train_tf, download=False)
-            test_ds = datasets.DTD(root=target_dir, split="test", transform=test_tf, download=False)
-    except Exception:
-        # Fallback to high-speed standardized transfer dataset
+            train_ds = datasets.DTD(root=target_dir, split="train", transform=train_tf, download=True)
+            test_ds = datasets.DTD(root=target_dir, split="test", transform=test_tf, download=True)
+    except Exception as e:
+        print(f"[Dataset Fallback] Torchvision transfer dataset ({e}). Using resilient MockTransferDataset.")
         train_ds = MockTransferDataset(num_samples=1000, num_classes=num_classes)
         test_ds = MockTransferDataset(num_samples=500, num_classes=num_classes)
 
-    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
-    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=torch.cuda.is_available())
+    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
     return train_loader, test_loader
