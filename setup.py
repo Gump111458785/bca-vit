@@ -3,17 +3,12 @@ from setuptools import setup, find_packages
 setup(
     name="bca_vit",
     version="1.0.0",
-    description="Bidirectional Cross-Attention Adaptation and Calibration for Transfer Vision Transformers",
+    description="Bidirectional Cross-Attention Adapters for Parameter-Efficient Vision Transformer Transfer Learning",
     packages=find_packages(),
     python_requires=">=3.8",
     install_requires=[
         "torch>=1.12.0",
         "torchvision>=0.13.0",
         "numpy>=1.21.0",
-        "scikit-learn>=1.0.0",
-        "tqdm>=4.64.0",
-        "tabulate>=0.8.9",
-        "requests>=2.28.0",
-        "scipy>=1.7.0",
     ],
 )
