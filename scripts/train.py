@@ -62,6 +62,15 @@ def main():
 
     # Weights check (Requirement: Must download weights)
     if not os.path.exists(args.weights_path):
+        print(f"[Weights Auto-Fetch] Checkpoint not found at: '{args.weights_path}'. Attempting automated download...")
+        try:
+            from weights.download_weights import download_pretrained_weights
+            weights_dir = os.path.dirname(args.weights_path) or "./weights"
+            download_pretrained_weights(output_dir=weights_dir)
+        except Exception as e:
+            print(f"[Weights Warning] Auto-download failed: {e}")
+
+    if not os.path.exists(args.weights_path):
         print("\n" + "!" * 70, file=sys.stderr)
         print(" [CRITICAL PRETRAINED WEIGHTS REQUIREMENT] ", file=sys.stderr)
         print(f" Pretrained backbone weights not found at: '{args.weights_path}'", file=sys.stderr)
