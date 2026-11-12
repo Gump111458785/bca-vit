@@ -18,23 +18,6 @@ IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
 
-class MockTransferDataset(Dataset):
-    def __init__(self, num_samples: int, num_classes: int, img_size: int = 224):
-        self.num_samples = num_samples
-        self.num_classes = num_classes
-        self.img_size = img_size
-
-    def __len__(self):
-        return self.num_samples
-
-    def __getitem__(self, idx):
-        # Deterministic generation per index
-        torch.manual_seed(idx)
-        img = torch.randn(3, self.img_size, self.img_size)
-        label = idx % self.num_classes
-        return img, label
-
-
 def get_dataset_info(dataset_name: str) -> Dict[str, Any]:
     dataset_name = dataset_name.lower()
     if dataset_name not in DATASET_CONFIGS:
@@ -78,18 +61,19 @@ def get_dataloaders(
 
     try:
         if dataset_name == "flowers102":
-            train_ds = datasets.Flowers102(root=target_dir, split="train", transform=train_tf, download=True)
-            test_ds = datasets.Flowers102(root=target_dir, split="test", transform=test_tf, download=True)
+            train_ds = datasets.Flowers102(root=target_dir, split="train", transform=train_tf, download=download)
+            test_ds = datasets.Flowers102(root=target_dir, split="test", transform=test_tf, download=download)
         elif dataset_name == "pets":
-            train_ds = datasets.OxfordIIITPet(root=target_dir, split="trainval", transform=train_tf, download=True)
-            test_ds = datasets.OxfordIIITPet(root=target_dir, split="test", transform=test_tf, download=True)
+            train_ds = datasets.OxfordIIITPet(root=target_dir, split="trainval", transform=train_tf, download=download)
+            test_ds = datasets.OxfordIIITPet(root=target_dir, split="test", transform=test_tf, download=download)
         elif dataset_name == "dtd":
-            train_ds = datasets.DTD(root=target_dir, split="train", transform=train_tf, download=True)
-            test_ds = datasets.DTD(root=target_dir, split="test", transform=test_tf, download=True)
+            train_ds = datasets.DTD(root=target_dir, split="train", transform=train_tf, download=download)
+            test_ds = datasets.DTD(root=target_dir, split="test", transform=test_tf, download=download)
     except Exception as e:
-        print(f"[Dataset Fallback] Torchvision transfer dataset ({e}). Using resilient MockTransferDataset.")
-        train_ds = MockTransferDataset(num_samples=1000, num_classes=num_classes)
-        test_ds = MockTransferDataset(num_samples=500, num_classes=num_classes)
+        raise RuntimeError(
+            f"Failed to load authentic benchmark dataset '{dataset_name}' from '{target_dir}' ({e}).\n"
+            f"Please execute 'bash scripts/download_data.sh' first to acquire the official benchmark datasets."
+        ) from e
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=torch.cuda.is_available())
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=torch.cuda.is_available())
