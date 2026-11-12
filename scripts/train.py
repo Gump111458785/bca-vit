@@ -36,7 +36,7 @@ def main():
     parser.add_argument("--weights_path", type=str, default="./weights/vit_base_patch16_224.pth")
     parser.add_argument("--data_dir", type=str, default="./data/cache")
     parser.add_argument("--output_dir", type=str, default="./checkpoints")
-    parser.add_argument("--epochs", type=int, default=20)
+    parser.add_argument("--epochs", type=int, default=5, help="Training epochs (default: 5 for rapid evaluation <=15min; use 20 for full reproduction)")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight_decay", type=float, default=1e-4)
