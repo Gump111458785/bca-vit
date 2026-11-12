@@ -33,24 +33,17 @@ def download_dataset(dataset_name: str, root_dir: str = "./data/cache") -> bool:
         print(f"[Dataset] Successfully prepared '{dataset_name}'.")
         return True
     except Exception as e:
-        print(f"[Dataset Fallback] Torchvision download warning ({e}). Generating standardized mock image partition for offline testing...")
-        # Create standardized mock image partition
-        train_dir = os.path.join(target_dir, "train")
-        test_dir = os.path.join(target_dir, "test")
-        os.makedirs(train_dir, exist_ok=True)
-        os.makedirs(test_dir, exist_ok=True)
-        num_classes = 102 if dataset_name == "flowers102" else (37 if dataset_name == "pets" else 47)
-        meta = {"num_classes": num_classes, "dataset": dataset_name, "verified": True}
-        torch.save(meta, os.path.join(target_dir, "meta.pth"))
-        print(f"[Dataset] Prepared cached structure for '{dataset_name}' ({num_classes} classes).")
-        return True
+        raise RuntimeError(
+            f"Failed to acquire official '{dataset_name}' dataset ({e}).\n"
+            f"Please check your internet connection or download '{dataset_name}' manually."
+        ) from e
 
 
 def verify_dataset(dataset_name: str, root_dir: str = "./data/cache") -> bool:
     target_dir = os.path.join(root_dir, dataset_name.lower())
     if not os.path.isdir(target_dir):
         return False
-    return os.path.exists(os.path.join(target_dir, "meta.pth")) or len(os.listdir(target_dir)) > 0
+    return len(os.listdir(target_dir)) > 0
 
 
 def download_all_datasets(root_dir: str = "./data/cache"):
